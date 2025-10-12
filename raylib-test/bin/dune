@@ -1,4 +1,4 @@
 (executable
  (public_name raylib-test)
  (name main)
- (libraries raylib))
+ (libraries ctypes raylib))
