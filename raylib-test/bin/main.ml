@@ -1,9 +1,12 @@
 let setup () =
-  Raylib.init_window 1280 250 "raylib / GLB Loader on Ocaml";
+  Raylib.init_window 800 250 "raylib / GLB Loader on Ocaml";
   Raylib.set_target_fps 60
 
 let asset_path (filename: string) = 
   Raylib.get_application_directory() ^ filename
+
+let implode_char_list (l : char list) : string =
+  l |> List.to_seq |> String.of_seq
 
 let camera_setup () =
   let open Raylib in
@@ -48,6 +51,7 @@ let loop () =
         
         (* Update mutable Animation Frame *)
         let anim = Ctypes.CArray.get anims !anim_index in
+        let anim_name = implode_char_list (CArray.to_list (ModelAnimation.name anim)) in
         anim_current_frame := (!anim_current_frame + 1) mod (ModelAnimation.frame_count anim);
         update_model_animation model anim !anim_current_frame;
         
@@ -58,8 +62,7 @@ let loop () =
             draw_model model position 1.0 Color.white;
             draw_grid 10 1.0;
           end_mode_3d ();
-          (* raylib/ocaml didn't expose Animation name !? *)
-          draw_text ("animation: " ^ (string_of_int !anim_index)) 10 10 20 Color.black;
+          draw_text ("animation: " ^ anim_name) 10 10 20 Color.black;
         end_drawing ();
     done
 
