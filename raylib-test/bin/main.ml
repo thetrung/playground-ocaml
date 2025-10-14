@@ -16,31 +16,41 @@ let camera_setup () =
 
 let loop () =
   let open Raylib in
-  let anim_index = ref 0 in (* Ocaml variable is immutable by default *)
-  let anim_current_frame = ref 0 in (* So we need "ref" to make it mutable *)
+
+
+  (* Load Asset + Config *)
   let model_path = asset_path "robot.glb" in 
   let model = load_model model_path in
-  let position = (Vector3.create 0.0 0.0 0.0) in 
   let anims = load_model_animations model_path in (* some fn are much different from Raylib/C *)
   let anim_count = Ctypes.CArray.length anims in
+  let anim_index, anim_current_frame = (ref 0, ref 0) in (* Ocaml variable is immutable by default *)
+  
+  (* Camera *)
   let camera = camera_setup() in
+  let position = (Vector3.create 0.0 0.0 0.0) in 
+
+
+  (* Main Loop  *)
   while true do
     match window_should_close() with 
     | true -> 
         unload_model model;
         close_window();
+        
     | false -> 
-        (* Raylib.addr convert ctype-> ctype ptr *)
-        update_camera (addr camera) CameraMode.Orbital;
+        update_camera (addr camera) CameraMode.Orbital;  (* Raylib.addr convert ctype-> ctype ptr *)
+
         (* Change Animation by Clicks *)
         anim_index := (* Re-Assign value with := & !var *)
           if is_mouse_button_pressed MouseButton.Right then  (!anim_index + 1) mod anim_count
           else if is_mouse_button_pressed MouseButton.Left then  (!anim_index + anim_count - 1) mod anim_count
           else !anim_index;
-        let anim = Ctypes.CArray.get anims !anim_index in
+        
         (* Update mutable Animation Frame *)
+        let anim = Ctypes.CArray.get anims !anim_index in
         anim_current_frame := (!anim_current_frame + 1) mod (ModelAnimation.frame_count anim);
         update_model_animation model anim !anim_current_frame;
+        
         (* Drawing *)
         begin_drawing ();
         clear_background Color.raywhite;
@@ -48,6 +58,8 @@ let loop () =
             draw_model model position 1.0 Color.white;
             draw_grid 10 1.0;
           end_mode_3d ();
+          (* raylib/ocaml didn't expose Animation name !? *)
+          draw_text ("animation: " ^ (string_of_int !anim_index)) 10 10 20 Color.black;
         end_drawing ();
     done
 
