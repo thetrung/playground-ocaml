@@ -5,10 +5,6 @@ let setup () =
 let asset_path (filename: string) = 
   Raylib.get_application_directory() ^ filename
 
-let carray_char_to_string (char_arr: char Ctypes_static.carray) : string =
-  let ptr = Ctypes.CArray.start char_arr in 
-  Ctypes.string_from_ptr ptr ~length:32
-
 let camera_setup () =
   let open Raylib in
   Camera.create 
@@ -52,7 +48,7 @@ let loop () =
         
         (* Update mutable Animation Frame *)
         let anim = Ctypes.CArray.get anims !anim_index in
-        let anim_name = carray_char_to_string (ModelAnimation.name anim) in
+        let anim_name = (ModelAnimation.name anim) in
         anim_current_frame := (!anim_current_frame + 1) mod (ModelAnimation.frame_count anim);
         update_model_animation model anim !anim_current_frame;
         
