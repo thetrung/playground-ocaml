@@ -57,16 +57,16 @@ let run vm =
         loop ()
   in
   loop ()
-
+let r0, r1, r2, r3, r4 = 0,1,2,3,4
 let () =
   let program = [|
-    LoadI (0, 10);
-    LoadI (1, 20);
-    Add (0, 1, 2);
-    LoadI (3, 2);
-    Mul (2, 3, 4);
-    Print 4;
-    Halt;
+    LoadI (r0, 10);     (* $0x0 = 10 *)
+    LoadI (r1, 20);     (* $0x1 = 20 *)
+    Add   (r0, r1, r2); (* $0x0 + $0x1 = $0x2  *)
+    LoadI (r3, 2);      (* $0x3 = 2 *)
+    Mul   (r2, r3, r4); (* $0x2 x $0x3 = $0x4 *)
+    Print  r4;          (* PRINT $0x4 *)
+    Halt;               (* Stop *)
   |] in
   let vm = create_vm program in
   run vm
