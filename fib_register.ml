@@ -18,12 +18,13 @@ type opcode =
 type vm = {
   mutable registers : int array;
   mutable ip : int;
+  mutable debug : bool;
   program : opcode array;
 }
 
 let create_vm program = {
   registers = Array.make 8 0;
-  ip = 0;
+  ip = 0; debug = false;
   program;
 }
 
@@ -31,10 +32,10 @@ let ax, bx, cx, dx, ex = 0,1,2,3,4
 
 let run vm =
   let len = Array.length vm.program in
-  Printf.printf "\nBEGIN (%d instructions)\n" len;
+  if vm.debug then Printf.printf "\nBEGIN (%d instructions)\n" len;
   let rec loop () =
     if vm.ip >= len then () else
-    Printf.printf "OPCODE: %d\n" vm.ip;
+    if vm.debug then Printf.printf "OPCODE: %d\n" vm.ip;
     match vm.program.(vm.ip) with
     | HALT -> ()
     | MOV (dst, src) ->
@@ -63,11 +64,11 @@ let run vm =
         vm.ip <- vm.ip + 1;
         loop ()
     | PRINT reg ->
-        Printf.printf "PRINT: %d\n" vm.registers.(reg);
+        Printf.printf (if vm.debug then "PRINT: %d\n" else "%d\n") vm.registers.(reg);
         vm.ip <- vm.ip + 1;
         loop ()
     | LABEL name ->
-        Printf.printf "LABEL: %s @ %d\n" name vm.ip;
+        if vm.debug then Printf.printf "LABEL: %s @ %d\n" name vm.ip;
         vm.ip <- vm.ip + 1;
         loop ()
     | JMP ip -> 
@@ -80,18 +81,18 @@ let run vm =
         loop ()
     | CMP (src1, src2, dst) -> 
         let regs = vm.registers in
-        Printf.printf "CMP (%d, %d)" regs.(src1) regs.(src2);
         regs.(dst) <- 
           if regs.(src1) == regs.(src2) then 0 else 
           if regs.(src1) > regs.(src2) then 1 else 
           if regs.(src1) < regs.(src2) then 2 else 
           failwith "Unsupported Method.";
-        Printf.printf " => %d\n" vm.registers.(dx);
+        if vm.debug then Printf.printf "CMP (%d, %d)" regs.(src1) regs.(src2);
+        if vm.debug then Printf.printf " => %d\n" vm.registers.(dx);
         vm.ip <- vm.ip + 1;
         loop ()
   in
   loop ();
-  Printf.printf "END PROGRAM\n"
+  if vm.debug then Printf.printf "END PROGRAM\n"
 
 let () =
   let test_ADD_MUL = [|
