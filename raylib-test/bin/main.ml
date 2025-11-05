@@ -11,27 +11,25 @@ let camera_setup () =
     (Vector3.create 6.0 6.0 6.0) (* camera position *)
     (Vector3.create 0.0 2.0 0.0) (* looking at point *)
     (Vector3.create 0.0 1.0 0.0) (* up vector *)
-    45.0 (* FOV *)
+    45.0                         (* FOV *)
     CameraProjection.Perspective
 
 let loop () =
   let open Raylib in
-
 
   (* Load Asset + Config *)
   let model_path = asset_path "robot.glb" in 
   let model = load_model model_path in
   let anims = load_model_animations model_path in (* some fn are much different from Raylib/C *)
   let anim_count = Ctypes.CArray.length anims in
-  let anim_index, anim_current_frame = (ref 0, ref 0) in (* Ocaml variable is immutable by default *)
+  let anim_index, anim_frame = (ref 0, ref 0) in (* Ocaml variable is immutable by default *)
   
   (* Camera *)
   let camera = camera_setup() in
   let position = (Vector3.create 0.0 0.0 0.0) in 
 
-
   (* Main Loop  *)
-  while true do
+  while not (window_should_close()) do
     match window_should_close() with 
     | true -> 
         unload_model model;
@@ -42,15 +40,19 @@ let loop () =
 
         (* Change Animation by Clicks *)
         anim_index := (* Re-Assign value with := & !var *)
-          if is_mouse_button_pressed MouseButton.Right then  (!anim_index + 1) mod anim_count
-          else if is_mouse_button_pressed MouseButton.Left then  (!anim_index + anim_count - 1) mod anim_count
+          if is_mouse_button_pressed MouseButton.Right then  
+            (!anim_index + 1) mod anim_count
+
+          else if is_mouse_button_pressed MouseButton.Left then  
+            (!anim_index + anim_count - 1) mod anim_count
+            
           else !anim_index;
         
         (* Update mutable Animation Frame *)
         let anim = Ctypes.CArray.get anims !anim_index in
         let anim_name = (ModelAnimation.name anim) in
-        anim_current_frame := (!anim_current_frame + 1) mod (ModelAnimation.frame_count anim);
-        update_model_animation model anim !anim_current_frame;
+        anim_frame := (!anim_frame + 1) mod (ModelAnimation.frame_count anim);
+        update_model_animation model anim !anim_frame;
         
         (* Drawing *)
         begin_drawing ();
