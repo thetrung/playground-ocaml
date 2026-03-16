@@ -1,10 +1,10 @@
 Default: build run clean
 
-build:
-	ocamlfind ocamlopt -package raylib -linkpkg raylib_fps.ml -o raylib_fps
+build: 
+	dune build 
 
 run:
-	./raylib_fps
+	./_build/default/bin/main.exe
 
 clean:
-	rm -rf raylib_fps raylib_fps.c* raylib_fps.o
+	rm -rf _build

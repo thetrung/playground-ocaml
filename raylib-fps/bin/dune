@@ -1,0 +1,4 @@
+(executable
+ (public_name raylib-fps)
+ (name main)
+ (libraries ctypes raylib))
