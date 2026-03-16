@@ -1,4 +1,4 @@
-Default = build run clean
+Default: build run clean
 
 build:
 	ocamlfind ocamlopt -package raylib -linkpkg raylib_fps.ml -o raylib_fps
