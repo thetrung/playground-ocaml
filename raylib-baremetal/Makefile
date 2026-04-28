@@ -1,4 +1,4 @@
-Default: build run clean
+Default: build run
 
 build:
 	ocamlfind ocamlopt -package raylib -linkpkg raylib_grid.ml -o raylib_grid

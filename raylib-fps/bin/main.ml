@@ -18,11 +18,13 @@ let loop () =
     match window_should_close() with
     | true -> close_window ();
     | false -> 
+        update_camera (addr camera) CameraMode.Orbital;
         begin_drawing();
         clear_background Color.raywhite;
           begin_mode_3d camera;
             (* something *)
             draw_grid 10 1.0;
+            draw_cube (Vector3.create 0.0 0.0 0.0) 1.0 1.0 1.0 Color.red;
           end_mode_3d ();
         end_drawing();
     done
