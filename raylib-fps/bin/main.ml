@@ -23,6 +23,7 @@ let loop () =
         clear_background Color.raywhite;
           begin_mode_3d camera;
             (* something *)
+            
             draw_grid 10 1.0;
             draw_cube (Vector3.create 0.0 0.0 0.0) 1.0 1.0 1.0 Color.red;
           end_mode_3d ();
