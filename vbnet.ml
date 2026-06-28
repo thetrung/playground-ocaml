@@ -392,12 +392,14 @@ let codegen_stmt ctx out_buf = function
       Hashtbl.add ctx.local_vars name alloc_reg;
       Hashtbl.add ctx.local_types name norm_dt;
       Buffer.add_string out_buf (Printf.sprintf "    %s = alloca %s, align 4\n" alloc_reg llvm_type);
-      (match init_opt with
-       | Some (Literal "new") -> () 
-       | Some expr -> 
-           let expr_reg = codegen_expr ctx out_buf expr in
-           Buffer.add_string out_buf (Printf.sprintf "    store %s %s, ptr %s, align 4\n" llvm_type expr_reg alloc_reg)
-       | None -> ())
+      (match norm_dt with
+       | Custom _ -> () 
+       | _ ->
+            (match init_opt with
+            | Some expr ->  
+                let expr_reg = codegen_expr ctx out_buf expr in
+                Buffer.add_string out_buf (Printf.sprintf "    store %s %s, ptr %s, align 4\n" llvm_type expr_reg alloc_reg)
+            | None -> ()))
   | Assign (FieldAccess (obj_raw, field_raw), expr) ->
       let obj_name = String.lowercase_ascii obj_raw in
       let field_name = String.lowercase_ascii field_raw in
@@ -472,7 +474,9 @@ let emit_llvm program =
           in
           Hashtbl.add ctx.local_vars p_name ("%" ^ p_name);
           Hashtbl.add ctx.local_types p_name norm_dt;
-          Printf.sprintf "%s %%%s" (llvm_type_of norm_dt) p_name
+          match norm_dt with 
+          | Custom _ -> Printf.sprintf "ptr %%%s" p_name
+          | other_dt -> Printf.sprintf "%s %%%s" (llvm_type_of norm_dt) p_name
         ) params in
         
         Buffer.add_string out_buf (Printf.sprintf "define %s @%s(%s) {\nentry:\n" 
